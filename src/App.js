@@ -1,30 +1,36 @@
 import React, { useState } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas} from "@react-three/fiber";
 import { useSpring, animated, config } from "react-spring/three";
 import "./styles.css";
 
 function MyRotatingBox() {
   const myMesh = React.useRef();
-  const [active, setActive] = useState(false);
+  const [active, setActive] = useState(0);
 
-  const { scale } = useSpring({
-    scale: active ? 1.5 : 1,
-    config: config.wobbly
+  const { spring } = useSpring({
+    // scale: active ? 1.5 : 1,
+    // config: config.wobbly
+    spring: active,
+    config: {mass: 5, tension: 400, friction: 50, precision: 0.0001}
   });
 
-  useFrame(({ clock }) => {
-    const a = clock.getElapsedTime();
-    myMesh.current.rotation.x = a;
-  });
+  // useFrame(({ clock }) => {
+  //   const a = clock.getElapsedTime();
+  //   myMesh.current.rotation.x = a;
+  // });
+  // const scale = spring.to([0, 1], [1,5])
+  const rotation = spring.to([0,1], [0, .5*Math.PI]);
+  const color = spring.to([0, 1], ['#6246ea', '#e45858']);
 
   return (
     <animated.mesh
-      scale={scale}
-      onClick={() => setActive(!active)}
+      rotation-y={rotation}
+      onClick={() => setActive(Number(!active))}
       ref={myMesh}
     >
-      <boxBufferGeometry />
-      <meshPhongMaterial color="royalblue" />
+      <boxBufferGeometry attach="geometry" args={[1, 1, 1]} />
+      {/* <meshPhongMaterial color="royalblue" /> */}
+      <animated.meshStandardMaterial roughness={0.5} attach="material" color={color} />
     </animated.mesh>
   );
 }
